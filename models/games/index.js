@@ -6,7 +6,17 @@ const mongoose = require('mongoose'),
         startDate: { type: Date, default: Date.now },
         running: { type: Boolean, default: false }, //this is set to false initially to allow people to join. It's then set to true once the game starts.
         lastPlayed: { type: Date, default: Date.now }
-        playerList: [{ id: String, techs: [String] }], //player list
+        playerList: [{
+            id: String,
+            techs: [String],
+            //see notes for relationship lvls
+            relations: [{
+                id: String,
+                lvl: { type: Number, default: 3 },
+                isFighting: { type: Boolean, default: false },
+                researchPact:{type:Boolean,default:false}
+            }]
+        }], //player list
         cellList: [ //row
             [{ //indv cell
                 contents: [{
