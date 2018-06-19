@@ -6,4 +6,8 @@ const express = require('express'),
     models = require('../../models/'),
     session = require('express-session');
 
- module.exports = router;
+router.post('/new',(req,res,next)=>{
+	const reqProps = ['name','owner','melee','ranged','rangedDist','hp','speed','armor','canRepair','canBuild','ally','requiredTech']
+})
+
+module.exports = router;
