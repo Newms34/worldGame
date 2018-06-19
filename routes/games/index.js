@@ -80,12 +80,12 @@ const express = require('express'),
         }
     },
     getGame = (req, res, next) => {
-        mongoose.model('Game').findOne({ id: req.body.gameId }, (err, gm) => {
+        mongoose.model('Game').findOne({ id: req.sesion.user.currGame }, (err, gm) => {
             if (err || !gm || gm == null) {
                 res.status(500).send('err');
                 return false;
             } else {
-                req.game = gm;
+                req.body.gm = gm;
                 next();
             }
         })
@@ -99,19 +99,22 @@ const express = require('express'),
         })
     }, 
     moveUnit=(gm,unit,target)=>{
-        /*move a unit (or try to!) 
+        /*mcheck if unit is movable
         Each cell can have ONE combat unit, ONE civilian unit, and ONE 'special' unit*/
         //first, check if there's stuff there of this unit's type AND owner (overlap)
         if(gm.cellList[unit.y][unit.x].contents.filter(t=>t.type==unit.type && t.owner == unit.owner).length){
-            return 'overlap';
+            return {status:'overlap', gm:gm};
         }else if(gm.cellList[unit.y][unit.x].contents.filter(t=>t.type==unit.type).length){
-            return 'attack';
+            return {status:'attack', gm:gm};
         }else if(calcDist(unit.x,unit.y,target.x,target.y)>1.5){
-            return 'tooFar';//unit is trying to move to a non-adjacent 
+            return {status:'tooFar', gm:gm};//unit is trying to move to a non-adjacent 
         }else if(unit.moves<1){
-            return 'noMoves';
+            return {status:'noMoves', gm:gm};
         }else{
-            return 'move';
+            //okay to move, so move then send 'move'
+            const pos = gm.cellList[unit.y][unit.x].contents.indexOf(unit.id);//pos in this unit's OLD cell contents array
+            gm.cellList[target.y][target.x].contents.push(gm.cellList[unit.y][unit.x].contents.splice(pos,1));
+            return {status:'move', gm:gm};
         }
     };
 
@@ -159,6 +162,35 @@ router.post('/fight', authbit, getGame, (req, res, next) => {
             res.send({agg:req.body.agg,def:req.body.def});
         }
     }
+});
+router.post('/move',authbit,getGame,(req,res,next)=>{
+    if(!req.body.gm||!req.body.unit||!req.body.targ){
+        res.status(422).send('err');
+        return false;
+    }
+    let moveResult = moveUnit(req.body.gm,req.body.unit,req.body.targ);
+    res.send(moveResult);
+});
+router.post('/build',authbit,getGame,(req,res,next)=>{
+    //builds a tile improvement. To be used
+    if(!req.body.gm||!req.body.unit||!req.body.str){
+        res.status(422).send('err');
+        return false;
+    }
+    if(gm.cellList[req.body.unit.y][req.body.unit.x].owner && gm.cellList[req.body.unit.y][req.body.unit.x].owner!=req.session.user.id){
+        res.status(400).send('wrongUser');
+    }else if(!req.body.replace && gm.cellList[req.body.unit.y][req.body.unit.x].improve){
+        res.status(400).send('occupiedTile');
+    }else{
+        //build improv
+    }
+});
+router.post('/declareWar',authbit,getGame,(req,res,next)=>{
+    res.send('PEACE ONLY')
 })
 
 module.exports = router;
+
+/*need to implement tile improvements in fight/move functions. +spd, for example, uses 0.5 moves instead of 1 if start/end on.
+need way to flag two users as "at war", and other diplo relationships
+*/
