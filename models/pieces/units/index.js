@@ -10,18 +10,18 @@ const mongoose = require('mongoose'),
         hp:Number,
         speed:Number,
         armor: Number, //some units (tanks? etc?) have an armor percent
-        canRepair: Boolean, //can this unit repair?
-        canBuild: Boolean, //can this unit build new structures? generally only for workers
-        canFound:Boolean,//can this unit found cities? only settlers, maybe for something else later
+        canRepair: {type:Boolean, default:false}, //can this unit repair?
+        canBuild: {type:Boolean, default:false}, //can this unit build new structures? generally only for workers
+        canFound:{type:Boolean, default:false},//can this unit found cities? only settlers, maybe for something else later
         firstStrike:{type:Boolean, default:false},//if firstStrike, unit can essentially counter-attack BEFORE another unit attacks it
-        mtns: Boolean,
-        type:Number,//0=combat, 1= civilian, 2= special
+        mtns: {type:Boolean, default:false},
+        type:{type:Number, default:0},//0=combat, 1= civilian, 2= special
         ally: {
-            allyRange: Number,
-            noLOS: Boolean, //if true, this allows nearby units to attack stuff hidden behind mountains
-            plusDef: Number,
-            plusAtt: Number,
-            healPerTurn: Number
+            allyRange: {type:Number, default:0},
+            noLOS: {type:Boolean, default:false}, //if true, this allows nearby units to attack stuff hidden behind mountains
+            plusDef: {type:Number, default:0},
+            plusAtt: {type:Number, default:0},
+            healPerTurn: {type:Number, default:0}
         },
         requiredTech: {
             type: String,
