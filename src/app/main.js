@@ -7,26 +7,26 @@ import ComponentsModule from './components/components.module';
 import '../style/app.scss';
 
 const AppModule = angular
-  .module('app', [
-    uiRouter,
-    ComponentsModule,
-    // CommonModule,
-    ngAnimate,
-  ])
-  .component('app', AppComponent)
-  .config(($locationProvider, $urlRouterProvider, $httpProvider) => {
-    'ngInject';
-    $locationProvider.html5Mode(true).hashPrefix('!');
+    .module('app', [
+        uiRouter,
+        ComponentsModule,
+        // CommonModule,
+        ngAnimate,
+    ])
+    .component('app', AppComponent)
+    .config(($locationProvider, $urlRouterProvider, $httpProvider) => {
+        'ngInject';
+        $locationProvider.html5Mode(true).hashPrefix('!');
 
-    $httpProvider.interceptors.push(($q => ({
-      request: (config) => {
-        config.url = config.url[0] === '/' ? baseURI + config.url : config.url;
-        return config || $q.when(config);
-      },
-    })));
-    $httpProvider.defaults.withCredentials = true;
-  })
-  .name;
+        $httpProvider.interceptors.push(($q => ({
+            request: (config) => {
+                config.url = config.url[0] === '/' ? baseURI + config.url : config.url;
+                return config || $q.when(config);
+            },
+        })));
+        $httpProvider.defaults.withCredentials = true;
+    })
+    .name;
 
-console.log('APP MODULE',AppModule,uiRouter,angular,ngAnimate)
+console.log('APP MODULE', AppModule, uiRouter, angular, ngAnimate)
 export default AppModule;

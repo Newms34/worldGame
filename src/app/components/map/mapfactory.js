@@ -1,7 +1,6 @@
 class hexGrid {
-
     //factory Class to construct a hexagonal civ-style grid, where each grid cell has a particular terrain type 
-    constructor(canvId, sl, usr, cellLoad, usrs,$http) {
+    constructor(canvId, sl, usr, cellLoad, usrs, $http) {
         this.canv = document.getElementById(canvId);
         this.usr = usr;
         this.width = screen.width * 1.3;
@@ -26,7 +25,7 @@ class hexGrid {
         this.boardHeight = Math.ceil(this.height / this.avgHeight);
         this.cellColors = ['water', 'grass', 'desert', 'mountain', 'deepWater'];
         this.users = []
-        //now we should have the number of cells on the board
+            //now we should have the number of cells on the board
         if (cellLoad) {
             this.cells = cellLoad;
             //loading a previous game
@@ -54,20 +53,21 @@ class hexGrid {
                 y = Math.floor(Math.random() * that.cells.length);
                 actualX = (x + 0.5) * that.hexRectangleWidth + ((y % 2) * that.hexRadius);
                 actualY = (y + 0.5) * (that.hexHeight + that.sideLength);
-                tooClose = that.returnNeighbors(actualX,actualY).filter(tcn=>{
-                	return tcn.id == that.cells[y][x].id;
-                }).length>1;
+                tooClose = that.returnNeighbors(actualX, actualY).filter(tcn => {
+                    return tcn.id == that.cells[y][x].id;
+                }).length > 1;
                 ranOnce = true;
             };
             that.cells[y][x].contents.push('settler')
-            that.returnNeighbors(actualX,actualY).forEach(nc=>{
-            	that.getCellAtPoint(nc.x,nc.y).owner=un;
+            that.returnNeighbors(actualX, actualY).forEach(nc => {
+                that.getCellAtPoint(nc.x, nc.y).owner = un;
             });
             console.log('user', un, 'starts in cell', x, ',', y)
             this.cells[y][x].owner = un;
         })
     }
     drawHexagon(x, y, hover, color, owner) {
+        //draw a single hexagon
         if (this.usr !== owner) {
             this.ctx.fillStyle = '#111';
             this.ctx.strokeStyle = '#111';
@@ -175,8 +175,8 @@ class hexGrid {
             return this.getCellAtPoint(nbf.x, nbf.y);
         });
     }
-    findSameType(cell,type){
-        return cell.contents.filter((ct)=>{
+    findSameType(cell, type) {
+        return cell.contents.filter((ct) => {
             return ct.isMil == type;
         })
     }
@@ -184,42 +184,42 @@ class hexGrid {
         //move a friendly unit onto a friendly (or unowned) cell
         const startCell = this.getCellAtPoint(start.x, start.y),
             endCell = this.getCellAtPoint(end.x, end.y),
-            {$http} = this;
-            navTypes = [
-                [0, 4],
-                [1, 2, 3],
-                [0, 1, 2, 3, 4]
-            ]; //water,land, amphibious
+            { $http } = this;
+        navTypes = [
+            [0, 4],
+            [1, 2, 3],
+            [0, 1, 2, 3, 4]
+        ]; //water,land, amphibious
         if (navTypes[unit.navTypes].indexOf(startCell.type) < 0 || navTypes[unit.navTypes].indexOf(endCell.type) < 0) {
             //either the start or end cell is not in this unit's list of appropriate nav 'types'
             //for example, a boat traveling onto land, or a land-only unit attempting to cross water
-            return {status:'badNav',ok:false};
+            return { status: 'badNav', ok: false };
         } else if (!!unit.mtns && (startCell.type == 3 || endCell.type == 3)) {
             //unit does not have the 'mtns' flag, so it cannot travel onto mountains.
-            return {status:'badNav',ok:false};
+            return { status: 'badNav', ok: false };
         } else {
             const naybs = this.returnNeighbors(start.x, start.y).map(nb => {
                 return this.getCellAtPoint(nb.x, nb.y);
             });
             if (naybs.map(nn => nn.id).indexOf(endCell.id) < 0) {
                 //cells are NOT neighbors.
-                return {status:'tooFar',ok:false};
+                return { status: 'tooFar', ok: false };
             } else if (usr != endCell.owner) {
-                return { status: 'checkWar', usr: endCell.owner ,ok:false}
-            }else if (this.findSameCellType(end,start.isMil)){
-                return {status:'occupied',contents:endCell.contents,ok:false}
-            }else{
+                return { status: 'checkWar', usr: endCell.owner, ok: false }
+            } else if (this.findSameCellType(end, start.isMil)) {
+                return { status: 'occupied', contents: endCell.contents, ok: false }
+            } else {
                 //everything (should!) check out!
-                return {status:'moved',ok:true};
+                return { status: 'moved', ok: true };
             }
         }
     }
-    checkStartWar(usr,targ){
-        if(targ.owner==usr){
+    checkStartWar(usr, targ) {
+        if (targ.owner == usr) {
             //cannot attack self!
-            return {status:'selfAttack',ok:false}
-        }else{
-            return {status:'attacked',ok:true}
+            return { status: 'selfAttack', ok: false }
+        } else {
+            return { status: 'attacked', ok: true }
         }
     }
     getCellAtPoint(x, y) {
@@ -305,11 +305,11 @@ class hexGrid {
         Promise.all(texProms).then((r) => {
             console.log('texProms', r)
             grid.cellColors = grid.cellColors.map(cc => {
-                return grid.ctx.createPattern(r.filter(ft => {
-                    return cc == ft.name;
-                })[0].img, 'repeat');
-            })
-            //now we check to make sure mountain and water tiles are appropriately surrounded
+                    return grid.ctx.createPattern(r.filter(ft => {
+                        return cc == ft.name;
+                    })[0].img, 'repeat');
+                })
+                //now we check to make sure mountain and water tiles are appropriately surrounded
             for (let a = 0; a < grid.cells.length; a++) {
                 for (let b = 0; b < grid.cells[a].length; b++) {
                     screenX = (grid.cells[a][b].x + 0.5) * grid.hexRectangleWidth + ((grid.cells[a][b].y % 2) * grid.hexRadius);

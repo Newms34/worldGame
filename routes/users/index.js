@@ -21,7 +21,7 @@ router.post('/register', (req, res, next) => {
             const salt = mongoose.model('User').generateSalt();
             const newUser = {
                 name: un,
-                dispName: req.body.displayName || un;
+                dispName: req.body.displayName || un,
                 salt: salt,
                 pass: mongoose.model('User').encryptPassword(pwd, salt),
                 currGames: [],
@@ -36,19 +36,19 @@ router.post('/register', (req, res, next) => {
     });
 });
 
-router.post('/login',(req,res,next)=>{
-	mongoose.model('User').findOne({ 'name': req.body.user },(err, usr)=>{
+router.post('/login', (req, res, next) => {
+    mongoose.model('User').findOne({ 'name': req.body.user }, (err, usr) => {
         console.log('USER FROM LOGIN:', usr);
         if (err || !usr || usr === null) {
             //most likely, this user doesn't exist.
-             res.status(500).send({ status: 'logErr' });;
+            res.status(500).send({ status: 'logErr' });;
         } else if (usr.correctPassword(req.body.pwd)) {
-        	delete usr.pass;
-        	delete usr.salt;
+            delete usr.pass;
+            delete usr.salt;
             req.session.user = usr;
-            res.send({status:'logGood',usr:user});
+            res.send({ status: 'logGood', usr: user });
         } else {
-             res.status(500).send({ status: 'logErr' });
+            res.status(500).send({ status: 'logErr' });
         }
     });
 });

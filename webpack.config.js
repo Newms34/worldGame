@@ -4,7 +4,8 @@ const webpack = require('webpack'),
     HtmlWebpackPlugin = require('html-webpack-plugin'),
     ExtractTextPlugin = require('extract-text-webpack-plugin'),
     CopyWebpackPlugin = require('copy-webpack-plugin'),
-    UglifyJsPlugin = require('uglifyjs-webpack-plugin'),
+    // UglifyJsPlugin = require('uglifyjs-webpack-plugin'),
+    TerserPlugin = require('terser-webpack-plugin'),
     ENV = process.env.npm_lifecycle_event,
     isTest = ENV === 'test' || ENV === 'test-watch',
     isProd = ENV === 'build';
@@ -216,15 +217,22 @@ const config = function makeWebpackConfig() {
     config.optimization = {
         minimizer: [
             // we specify a custom UglifyJsPlugin here to get source maps in production
-            new UglifyJsPlugin({
-                cache: true,
+            // NEVERMIND, uglifyjs sucks because they dont support es6. Welp, Bye Uglify.
+            // new UglifyJsPlugin({
+            //     cache: true,
+            //     parallel: true,
+            //     uglifyOptions: {
+            //         compress: false,
+            //         ecma: 6,
+            //         mangle: false
+            //     },
+            //     sourceMap: true
+            // })
+            new TerserPlugin({
                 parallel: true,
-                uglifyOptions: {
-                    compress: false,
+                terserOptions: {
                     ecma: 6,
-                    mangle: false
                 },
-                sourceMap: true
             })
         ]
     }

@@ -28,7 +28,7 @@ const mongoose = require('mongoose'),
             prod: {
                 type: Number,
                 default: 0
-            }
+            },
             cult: {
                 type: Number,
                 default: 0
@@ -39,9 +39,9 @@ const mongoose = require('mongoose'),
             }
         },
         owner: String,
-        rot:{
-            type:Number,
-            default:0
+        rot: {
+            type: Number,
+            default: 0
         }
     }, { collection: 'Improvement' });
 
