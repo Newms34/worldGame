@@ -7,7 +7,7 @@ const mongoose = require('mongoose'),
         dispName:String,
         id: { type: String, default: uuid.v1() },
         salt: String,
-        regDate:{type:Date, default:Date.now}
+        regDate:{type:Date, default:Date.now},
         currGame: String, //string id of game this user is currently playing
         doneGames: [String] //games this user finished
     }, { collection: 'User' });

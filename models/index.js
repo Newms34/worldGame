@@ -5,6 +5,9 @@ require('./pieces/units/');
 require('./pieces/structures/');
 require('./pieces/improvements/');
 require('./users/');
+require('./nations/');
+require('./games/');
+require('./techs/');
 require('./maps/');
 console.log('Node Environment:', process.env.NODE_ENV)
 if (!process.env.NODE_ENV || process.env.NODE_ENV != 'prod') {
