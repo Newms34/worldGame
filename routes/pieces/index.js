@@ -44,9 +44,9 @@ router.post('/new', authbit, (req, res, next) => {
 
                         } else {
                             //okay!
-                            tf['allowed'+req.body.pieceType].push(r.id);
-                            r.save((err,prod)=>{
-                            	res.send(err||'done');
+                            tf['allowed' + req.body.pieceType].push(r.id);
+                            r.save((err, prod) => {
+                                res.send(err || 'done');
                             })
                         }
                     });

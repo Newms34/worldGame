@@ -1,4 +1,4 @@
-var express = require('express'),
+const express = require('express'),
   logger = require('morgan'),
   path = require('path'),
   bodyParser = require('body-parser'),
@@ -23,7 +23,7 @@ app.use(express.static(path.join(__dirname, 'dist')));
 const routes = require('./routes');
 app.use('/', routes);
 
-var http = require('http').Server(app);
+const http = require('http').Server(app);
 
 // http.listen(process.env.PORT || 9020);
 http.listen(process.env.PORT || 9020);
