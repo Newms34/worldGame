@@ -90,31 +90,31 @@ const express = require('express'),
             }
         })
     },
-    killUnit = (gm, dier,res) => {
+    killUnit = (gm, dier, res) => {
         //kill a unit
-        const dierPos = gm.cellList[dier.y][dier.x].contents.map(u=>u.id).indexOf(dier.id);
-        gm.cellList[dier.y][dier.x].contents.splice(dierPos,1);
+        const dierPos = gm.cellList[dier.y][dier.x].contents.map(u => u.id).indexOf(dier.id);
+        gm.cellList[dier.y][dier.x].contents.splice(dierPos, 1);
         mongoose.model('Game').update({ 'id': gm.id }, gm, function(r) {
             res.send(gm);
         })
-    }, 
-    moveUnit=(gm,unit,target)=>{
+    },
+    moveUnit = (gm, unit, target) => {
         /*mcheck if unit is movable
         Each cell can have ONE combat unit, ONE civilian unit, and ONE 'special' unit*/
         //first, check if there's stuff there of this unit's type AND owner (overlap)
-        if(gm.cellList[unit.y][unit.x].contents.filter(t=>t.type==unit.type && t.owner == unit.owner).length){
-            return {status:'overlap', gm:gm};
-        }else if(gm.cellList[unit.y][unit.x].contents.filter(t=>t.type==unit.type).length){
-            return {status:'attack', gm:gm};
-        }else if(calcDist(unit.x,unit.y,target.x,target.y)>1.5){
-            return {status:'tooFar', gm:gm};//unit is trying to move to a non-adjacent 
-        }else if(unit.moves<1){
-            return {status:'noMoves', gm:gm};
-        }else{
+        if (gm.cellList[unit.y][unit.x].contents.filter(t => t.type == unit.type && t.owner == unit.owner).length) {
+            return { status: 'overlap', gm: gm };
+        } else if (gm.cellList[unit.y][unit.x].contents.filter(t => t.type == unit.type).length) {
+            return { status: 'attack', gm: gm };
+        } else if (calcDist(unit.x, unit.y, target.x, target.y) > 1.5) {
+            return { status: 'tooFar', gm: gm }; //unit is trying to move to a non-adjacent 
+        } else if (unit.moves < 1) {
+            return { status: 'noMoves', gm: gm };
+        } else {
             //okay to move, so move then send 'move'
-            const pos = gm.cellList[unit.y][unit.x].contents.indexOf(unit.id);//pos in this unit's OLD cell contents array
-            gm.cellList[target.y][target.x].contents.push(gm.cellList[unit.y][unit.x].contents.splice(pos,1));
-            return {status:'move', gm:gm};
+            const pos = gm.cellList[unit.y][unit.x].contents.indexOf(unit.id); //pos in this unit's OLD cell contents array
+            gm.cellList[target.y][target.x].contents.push(gm.cellList[unit.y][unit.x].contents.splice(pos, 1));
+            return { status: 'move', gm: gm };
         }
     };
 
@@ -136,7 +136,7 @@ router.post('/fight', authbit, getGame, (req, res, next) => {
     //note that this is a unit attacking another unit, NOT a unit attacking building (or vice/versa)
     if (!req.body.agg || !req.body.def || !req.body.gameId) {
         //gameId or aggressor or defender is missing,
-        res.status(500).send({ status: 'invalCombat'});
+        res.status(500).send({ status: 'invalCombat' });
     } else {
         //now we need to figure out attacks
         const dist = calcDist(req.body.agg.x, req.body.agg.y, req.body.def.x, req.body.def.y);
@@ -145,49 +145,70 @@ router.post('/fight', authbit, getGame, (req, res, next) => {
             req.body.agg.hp -= Math.ceil(req.body.def.melee * 0.5 * Math.random());
             //check if firstStrike killed attacker
             if (req.body.agg.hp <= 0) {
-                killUnit(req.body.gm, req.body.agg,res)
+                killUnit(req.body.gm, req.body.agg, res)
             }
-        }else if(dist>1.5 && req.body.agg.rangeDist>dist){
+        } else if (dist > 1.5 && req.body.agg.rangeDist > dist) {
             //ranged
-            req.body.def.hp-=Math.ceil(req.body.agg.ranged*Math.random());
-        }else if(dist<1.5){
+            req.body.def.hp -= Math.ceil(req.body.agg.ranged * Math.random());
+        } else if (dist < 1.5) {
             //melee
-            req.body.def.hp-=Math.ceil(req.body.agg.melee*Math.random());
-        }else{
+            req.body.def.hp -= Math.ceil(req.body.agg.melee * Math.random());
+        } else {
             //too far?
         }
-        if(req.body.def.hp<=0){
-            killUnit(req.body.gm, req.body.def,res);
-        }else{
-            res.send({agg:req.body.agg,def:req.body.def});
+        if (req.body.def.hp <= 0) {
+            killUnit(req.body.gm, req.body.def, res);
+        } else {
+            res.send({ agg: req.body.agg, def: req.body.def });
         }
     }
 });
-router.post('/move',authbit,getGame,(req,res,next)=>{
-    if(!req.body.gm||!req.body.unit||!req.body.targ){
-        res.status(422).send('err');
+router.post('/move', authbit, getGame, (req, res, next) => {
+    if (!req.body.gm || !req.body.unit || !req.body.targ) {
+        res.status(422).send('missingInfo');
         return false;
     }
-    let moveResult = moveUnit(req.body.gm,req.body.unit,req.body.targ);
+    let moveResult = moveUnit(req.body.gm, req.body.unit, req.body.targ);
     res.send(moveResult);
 });
-router.post('/build',authbit,getGame,(req,res,next)=>{
-    //builds a tile improvement. To be used
-    if(!req.body.gm||!req.body.unit||!req.body.str){
-        res.status(422).send('err');
+router.post('/buildImp', authbit, getGame, (req, res, next) => {
+    //builds a tile improvement.
+    if (!req.body.gm || !req.body.imp || !req.body.unit) {
+        res.status(422).send('missingInfo');
         return false;
     }
-    if(gm.cellList[req.body.unit.y][req.body.unit.x].owner && gm.cellList[req.body.unit.y][req.body.unit.x].owner!=req.session.user.id){
+    const gm = req.body.gm;
+    if (gm.cellList[req.body.unit.y][req.body.unit.x].owner && gm.cellList[req.body.unit.y][req.body.unit.x].owner != req.session.user.id) {
         res.status(400).send('wrongUser');
-    }else if(!req.body.replace && gm.cellList[req.body.unit.y][req.body.unit.x].improve){
+    } else if (!req.body.replace && gm.cellList[req.body.unit.y][req.body.unit.x].improve) {
         res.status(400).send('occupiedTile');
-    }else{
+    } else {
         //build improv
+        mongoose.model('Unit').findOne({ id: req.body.unit }, (err, bunit) => {
+            if (err || !bunit || !bunit.canBuild) {
+                //unit either does not exist, or cannot build
+                res.status(400).send('err');
+                mongoose.model('Improvement').findOne({ id: req.body.imp }, (err, bimp) => {
+                    if (err || !bimp) {
+                        res.status(400).send('err');
+                    } else {
+                        gm.cellList[req.body.unit.y][req.body.unit.x].improve = bimp;
+                        gm.save((err, rs) => {
+                            res.send(err || gm)
+                        });
+                    }
+                })
+            }
+        });
     }
 });
-router.post('/declareWar',authbit,getGame,(req,res,next)=>{
+router.post('/declareWar', authbit, getGame, (req, res, next) => {
     res.send('PEACE ONLY')
 })
+
+router.post('/foundCity',authbit,getGame,(req,res,next)=>{
+    res.send ('404 city not found(ed)')
+});
 
 module.exports = router;
 

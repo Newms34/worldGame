@@ -8,13 +8,13 @@ const mongoose = require('mongoose'),
         lastPlayed: { type: Date, default: Date.now }
         playerList: [{
             id: String,
-            techs: [String],
+            techs: [String], //unlocked tech ids
             //see notes for relationship lvls
             relations: [{
                 id: String,
                 lvl: { type: Number, default: 3 },
                 isFighting: { type: Boolean, default: false },
-                researchPact:{type:Boolean,default:false}
+                researchPact: { type: Boolean, default: false }
             }]
         }], //player list
         cellList: [ //row
@@ -40,33 +40,51 @@ const mongoose = require('mongoose'),
                 owner: String, //id of owner (or null)
                 improv: {
                     //tile improvements, like roads 
-                    impType: String,
-                    rot: Number, //rotation (0,90,180,270)
+                    id: {
+                        type: String,
+                        default: ''
+                    },
+                    name: {
+                        type: String,
+                        default: ''
+                    }
+                    rot: {
+                        type: Number,
+                        default: 0
+                    }, //rotation (0,90,180,270)
                     impSubImg: String, //uri of image, to display specific improvement. doesn't change the actual improvement 'abilities'
                     abilities: {
                         def: {
-                            type: Boolean,
-                            default: false
+                            type: Number,
+                            default: 0
                         },
                         att: {
-                            type: Boolean,
-                            default: false
+                            type: Number,
+                            default: 0
                         },
                         spd: {
                             type: Boolean,
                             default: false
                         },
                         sci: {
-                            type: Boolean,
-                            default: false
+                            type: Number,
+                            default: 0
                         },
                         diplo: {
                             type: Boolean,
                             default: false
                         },
+                        prod: {
+                            type: Number,
+                            default: 0
+                        }
                         cult: {
-                            type: Boolean,
-                            default: false
+                            type: Number,
+                            default: 0
+                        },
+                        faith: {
+                            type: Number,
+                            default: 0
                         }
                     }
                 }
