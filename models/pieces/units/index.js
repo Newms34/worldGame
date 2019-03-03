@@ -10,20 +10,23 @@ const mongoose = require('mongoose'),
         rangeDist: {type:Number, default:-1}, //number of tiles unit can fire over. -1 if unit cannot range
         hp:Number,
         speed:Number,
+        x:Number,
+        y:Number,
         armor: Number, //some units (tanks? etc?) have an armor percent
         isMil:{type:Boolean, default:true},//unit type: military or non-military
         canRepair: {type:Boolean, default:false}, //can this unit repair?
         canBuild: {type:Boolean, default:false}, //can this unit build new structures? generally only for workers
         canFound:{type:Boolean, default:false},//can this unit found cities? only settlers, maybe for something else later
+
         firstStrike:{type:Boolean, default:false},//if firstStrike, unit can essentially counter-attack BEFORE another unit attacks it
-        mtns: {type:Boolean, default:false},
-        type:{type:Number, default:0},//0=combat, 1= civilian, 2= special
+        mtns: Boolean,//can unit cross mountains? usually either flying or specific mountaineer units.
+        type:Number,//0=combat, 1= civilian, 2= special
         ally: {
-            allyRange: {type:Number, default:0},
-            noLOS: {type:Boolean, default:false}, //if true, this allows nearby units to attack stuff hidden behind mountains
-            plusDef: {type:Number, default:0},
-            plusAtt: {type:Number, default:0},
-            healPerTurn: {type:Number, default:0}
+            allyRange: Number,
+            noLOS: Boolean, //if true, this allows nearby units to attack stuff hidden behind mountains
+            plusDef: Number,
+            plusAtt: Number,
+            healPerTurn: Number
         },
         requiredTech: {
             type: String,
