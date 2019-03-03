@@ -19,7 +19,8 @@ const mongoose = require('mongoose'),
             att: Number
         },
         workSlots: Number,
-        city: String
+        city: String,
+        reqCiv:{type:String,default:null}//if non-null, this building can ONLY be build by the indicated civ (by ID string)
     }, { collection: 'Structure' });
 
 mongoose.model('Structure', structureSchema);

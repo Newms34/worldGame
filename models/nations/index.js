@@ -7,6 +7,8 @@ const mongoose = require('mongoose'),
         leaderName: String,
         leaderDesc: String,
         leaderIntro: String,
+        uniqueBuilding: { type: String, default: null },
+        uniqueUnit: { type: String, default: null },
         bonusTo: {
             science: {
                 type: Number,
@@ -40,7 +42,10 @@ const mongoose = require('mongoose'),
                 type: Number,
                 default: 0
             },
-            faith:{type:Number, default:0},
+            faith: {
+                type: Number,
+                default: 0
+            },
         }
 
     }, { collection: 'Nation' });

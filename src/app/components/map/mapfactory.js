@@ -1,4 +1,6 @@
 class hexGrid {
+
+    //factory Class to construct a hexagonal civ-style grid, where each grid cell has a particular terrain type 
     constructor(canvId, sl, usr, cellLoad, usrs,$http) {
         this.canv = document.getElementById(canvId);
         this.usr = usr;
@@ -10,6 +12,7 @@ class hexGrid {
         this.canv.height = this.height;
         this.isDragging = false;
         this.line = null;
+        this.$http = $http;
         this.ctx = this.canv.getContext('2d');
         this.hexagonAngle = Math.PI * 30 / 180; // 30 degrees in radians
         this.sideLength = sl;
@@ -172,9 +175,16 @@ class hexGrid {
             return this.getCellAtPoint(nbf.x, nbf.y);
         });
     }
+    findSameType(cell,type){
+        return cell.contents.filter((ct)=>{
+            return ct.isMil == type;
+        })
+    }
     navigate(start, end, unit, usr) {
+        //move a friendly unit onto a friendly (or unowned) cell
         const startCell = this.getCellAtPoint(start.x, start.y),
             endCell = this.getCellAtPoint(end.x, end.y),
+            {$http} = this;
             navTypes = [
                 [0, 4],
                 [1, 2, 3],
@@ -183,20 +193,33 @@ class hexGrid {
         if (navTypes[unit.navTypes].indexOf(startCell.type) < 0 || navTypes[unit.navTypes].indexOf(endCell.type) < 0) {
             //either the start or end cell is not in this unit's list of appropriate nav 'types'
             //for example, a boat traveling onto land, or a land-only unit attempting to cross water
-            return false;
+            return {status:'badNav',ok:false};
         } else if (!!unit.mtns && (startCell.type == 3 || endCell.type == 3)) {
             //unit does not have the 'mtns' flag, so it cannot travel onto mountains.
-            return false;
+            return {status:'badNav',ok:false};
         } else {
             const naybs = this.returnNeighbors(start.x, start.y).map(nb => {
                 return this.getCellAtPoint(nb.x, nb.y);
             });
             if (naybs.map(nn => nn.id).indexOf(endCell.id) < 0) {
                 //cells are NOT neighbors.
-                return false;
+                return {status:'tooFar',ok:false};
             } else if (usr != endCell.owner) {
-                return { status: 'checkWar', usr: endCell.owner }
+                return { status: 'checkWar', usr: endCell.owner ,ok:false}
+            }else if (this.findSameCellType(end,start.isMil)){
+                return {status:'occupied',contents:endCell.contents,ok:false}
+            }else{
+                //everything (should!) check out!
+                return {status:'moved',ok:true};
             }
+        }
+    }
+    checkStartWar(usr,targ){
+        if(targ.owner==usr){
+            //cannot attack self!
+            return {status:'selfAttack',ok:false}
+        }else{
+            return {status:'attacked',ok:true}
         }
     }
     getCellAtPoint(x, y) {
