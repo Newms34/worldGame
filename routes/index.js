@@ -16,7 +16,7 @@ router.get('/heartbeat', function(req, res, next) {
 })
 router.use('/users', require('./users'));
 router.use('/maps', require('./maps'));
-router.use('/pieces', require('./pieces'));
+router.use('/items', require('./items'));
 router.use('/games', require('./games'));
 router.get('/', function(req, res, next) {
     res.sendFile('index.html', { "root": './views' });

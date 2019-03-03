@@ -4,7 +4,7 @@ const mongoose = require('mongoose'),
     usrSchema = new mongoose.Schema({
         name: String, //name of the user
         pass: String,
-        dispName:String,
+        dispName:{type:String, default:null},//display name (if different; default null)
         id: { type: String, default: uuid.v1() },
         salt: String,
         regDate:{type:Date, default:Date.now}
